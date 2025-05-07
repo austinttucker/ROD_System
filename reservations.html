@@ -1,0 +1,184 @@
+<!-- EmailJS code tutorial: https://youtu.be/BgVjild0C9A?si=tPCUwQtnJesVZGaf --->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Room Reservations</title>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>
+      emailjs.init("8HDSbvz2A_AvZ82Xu"); 
+    </script>
+  </head>
+  <link rel="stylesheet" href="floorplan.css" />
+  <body style="background-color: darkblue">
+    <h1><img src=img/cnu-sails-blue.png width="100"></h1>
+    <h1>Reserve a Room</h1>
+    <h2>Please fill out the form below to book a reservation:</h2>
+    <form id="reservationForm">
+      <label for="room">Room to Reserve:</label>
+      <select type="room" id="room" required>
+        <option value="room100">Room 100</option>
+        <option value="room101">Room 101</option>
+        <option value="room200">Room 200</option>
+      </select>
+      <label for="email">Email:</label>
+      <input type="text" id="email" name="email" required />
+      <label for="startTime">From:</label>
+      <input type="time" id="startTime" name="startTime" required />
+      <label for="endTime">To:</label>
+      <input type="time" id="endTime" name="endTime" required />
+      <button type="submit" class="submit-button" id="reservation-button">
+        Reserve Room
+      </button>
+    </form>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        get,
+        push,
+      } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyBEaP90MeuJJOKCU3DfstvMPwW6f1PVvs0",
+        authDomain: "rod-system.firebaseapp.com",
+        databaseURL: "https://rod-system-default-rtdb.firebaseio.com",
+        projectId: "rod-system",
+        storageBucket: "rod-system.firebasestorage.app",
+        messagingSenderId: "722670835307",
+        appId: "1:722670835307:web:7b1260b82c4bf63200c32e",
+        measurementId: "G-ZYSFT0E2P9",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+      let button = document.getElementById("reservation-button");
+      button.addEventListener("click", function (e) {
+        e.preventDefault(); // Prevent form submission
+        const room = document.getElementById("room").value;
+        const email = document.getElementById("email").value;
+        const startTime = document.getElementById("startTime").value;
+        const endTime = document.getElementById("endTime").value;
+        const date = new Date().toLocaleDateString();
+        if (!room || !email || !startTime || !endTime) {
+          alert("Please fill in all fields.");
+          return;
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; //email regex is from ChatGPT
+        if (!emailRegex.test(email)) {
+          alert("Please enter a valid email address.");
+          return;
+        }
+        if (startTime === endTime) {
+          alert("Start time and end time cannot be the same.");
+          return;
+        }
+        if (startTime < "05:00") {
+          alert("Start time must be after 5:00 AM.");
+          return;
+        }
+        if (startTime >= endTime) {
+          if (endTime > "01:00") {
+            //1:00 is a placeholder for the closing time of building
+            alert("End time must be before 1:00 AM.");
+            return;
+          }
+          alert("Start time must be before end time.");
+          return;
+        }
+        let conflict = false;
+        fetchReservations().then((data) => {
+          const reservations = data;
+          Object.entries(reservations).forEach(([key, reservation]) => {
+            if (reservation.room === room) {
+              if (
+                (startTime >= reservation.startTime &&
+                  startTime < reservation.endTime) ||
+                (endTime > reservation.startTime &&
+                  endTime <= reservation.endTime)
+              ) {
+                alert(
+                  "Room is already reserved during " +
+                    reservation.startTime +
+                    " - " +
+                    reservation.endTime
+                );
+                conflict = true;
+              } else if (
+                reservation.endTime < reservation.startTime &&
+                reservation.endTime < endTime
+              ) {
+                alert(
+                  "Room is already reserved during " +
+                    reservation.startTime +
+                    " - " +
+                    reservation.endTime
+                );
+                conflict = true;
+              } 
+            }
+            if(reservation.email === email) {
+              alert("You already have a reservation under this email.");
+              conflict = true;
+            }
+          });
+          if (conflict) {
+            return;
+          }
+          push(ref(database, "reservations"), {
+            room: room,
+            email: email,
+            startTime: startTime,
+            endTime: endTime,
+            date: date,
+          })
+            .then(() => {
+              // Send confirmation email
+              emailjs
+                .send("service_kz57fpx", "template_s9e5nkq", {
+                  to_email: email,
+                  message: `You have reserved ${room} from ${startTime} to ${endTime}.`,
+                })
+                .then(
+                  function () {
+                    alert("Reservation saved and confirmation email sent!");
+                    window.location.href = "occupancies.html";
+                  },
+                  function (error) {
+                    console.error("Email failed to send:", error);
+                    alert(
+                      "Reservation saved, but failed to send confirmation email."
+                    );
+                    window.location.href = "occupancies.html";
+                  }
+                );
+            })
+            .catch((error) => {
+              console.error("Error saving reservation:", error);
+              alert("Failed to save reservation.");
+            });
+        });
+      });
+      async function fetchReservations() {
+        const dbRef = ref(database, "reservations");
+        try {
+          const snapshot = await get(dbRef);
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            return data;
+          } else {
+            console.log("No data available");
+            return {};
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

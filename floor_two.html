@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="UTF-8">
+    <head>
+        <title>Room Occupancies</title> <!-- title can be changed, just a basic one for now -->
+    </head>
+    <link rel="stylesheet" href="floorplan.css">
+    <body>
+        <h1><img src=img/cnu-sails-blue.png width="100"></h1>
+        <h1>Room Occupancy Status</h1>
+        <div class="key">
+            <div class="vacant"><img src=img/green_color_box.png width="20">Vacant</div>
+            <div class="occupied"><img src=img/red_color_box.png width="20">Occuipied</div>
+            <div class="reserved"><img src=img/cyan_color_box.jpg width="20">Reserved</div>
+        </div>
+        <div class="floorplan">
+            <div class='room' id="room200">
+                <p class="room_number">200</p>
+                <div id="door200"></div>
+            </div>
+        </div>
+        <div class="bottom-container">
+            <table id="room_table">
+                <thead>
+                    <tr>
+                        <th>Room Number</th>
+                        <th>Occupancy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Javascript data will be displayed here -->
+                </tbody>
+            </table>
+            <div class="floor-reservation-buttons">
+                <a href="occupancies.html">
+                    <button class="back-button">></button>
+                </a>
+                <span class="floor-number">Floor 2</span>
+                <a href="reservations.html">
+                    <button class="reservation-button">Reserve a Room</button>
+                </a>
+                <a href="cancel-reservations.html">
+                    <button class="cancel-reservation-button">Cancel Reservations</button>
+                </a>
+            </div>
+        </div>
+        <script type ="module" src="fetch.js"></script>
+    </body>
+</html>

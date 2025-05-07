@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <head>
+        <title>Room Occupancies</title> <!-- title can be changed, just a basic one for now -->
+    </head>
+    <link rel="stylesheet" href="floorplan.css">
+    <body>
+        <h1><img src=img/cnu-sails-blue.png width="100"></h1>
+        <h1>Room Occupancy Status</h1>
+        <div class="key">
+            <div class="vacant"><img src=img/green_color_box.png width="20">Vacant</div>
+            <div class="occupied"><img src=img/red_color_box.png width="20">Occuipied</div>
+            <div class="reserved"><img src=img/cyan_color_box.jpg width="20">Reserved</div>
+        </div>
+        <div class="floorplan">
+            <div class='room' id="room100">
+                <p class="room_number">100</p>
+                <div id="door100"></div>
+            </div>
+            <div class='room' id="room101">
+                <p class="room_number">101</p>
+                <div id="door101"></div>
+            </div>
+        </div>
+        <div class="bottom-container">
+            <table id="room_table">
+                <thead>
+                    <tr>
+                        <th>Room Number</th>
+                        <th>Occupancy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Javascript data will be displayed here -->
+                </tbody>
+            </table>
+            <div class="floor-reservation-buttons">
+                <span class="floor-number">Floor 1</span>
+                <a href="floor_two.html">
+                    <button class="forward-button">></button>
+                </a>
+                <a href="reservations.html">
+                    <button class="reservation-button">Reserve a Room</button>
+                </a>
+                <a href="cancel-reservations.html">
+                    <button class="cancel-reservation-button">Cancel Reservations</button>
+                </a>
+            </div>
+        </div>
+        <script type ="module" src="fetch.js"></script>
+    </body>
+</html>

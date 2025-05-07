@@ -1,0 +1,16 @@
+{
+  "name": "capstone",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "To make it easy for you to get started with GitLab, here's a list of recommended next steps.",
+  "main": "data.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase": "^11.6.0"
+  }
+}
